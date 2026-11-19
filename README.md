@@ -17,18 +17,19 @@ Needs [Docker Desktop](https://www.docker.com/products/docker-desktop/) (or Dock
 Engine) running.
 
 ```bash
-docker run --rm -p 8080:8080 ghcr.io/ezraulo/pdftomusicxml:latest
+docker run --rm -p 8080:8080 ghcr.io/waes538/cellotutor:latest
 ```
 
 Then open <http://localhost:8080>. Stop it with Ctrl+C. The image is published from
-`main` by the *Publish image* workflow (built natively for both architectures); `docker pull ghcr.io/ezraulo/pdftomusicxml:latest`
+`main` by the *Publish image* workflow in this repository (built natively for both
+architectures, public, so no `docker login` is needed); `docker pull ghcr.io/waes538/cellotutor:latest`
 fetches a newer one.
 
 Or, from a copy of this repository, with Docker Compose (keeps running in the background):
 
 ```bash
-git clone https://github.com/ezraulo/pdftomusicxml.git
-cd pdftomusicxml
+git clone https://github.com/waes538/cellotutor.git
+cd cellotutor
 docker compose pull && docker compose up -d     # published image
 docker compose up -d --build                    # or build it yourself (10-15 min)
 docker compose down                             # stop
@@ -65,7 +66,7 @@ Anything that runs a Docker image works, but reading PDFs with Audiveris needs a
 - **Google Cloud Run** (pay per use):
 
   ```bash
-  gcloud run deploy pdftomusicxml --image ghcr.io/ezraulo/pdftomusicxml:latest \
+  gcloud run deploy pdftomusicxml --image ghcr.io/waes538/cellotutor:latest \
     --region europe-west2 --memory 4Gi --cpu 2 --timeout 900 --concurrency 1
   ```
 
