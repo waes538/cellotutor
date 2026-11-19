@@ -58,6 +58,21 @@ def test_timewise_score_is_refused():
         split_for_violy(b"<score-timewise/>")
 
 
+def test_missing_part_list_is_refused_not_a_crash():
+    root = _parse(SAMPLE_MUSICXML.read_bytes())
+    root.remove(root.find("part-list"))
+    with pytest.raises(ValueError, match="part-list"):
+        split_for_violy(ET.tostring(root))
+
+
+def test_part_missing_from_the_part_list_is_refused():
+    root = _parse(SAMPLE_MUSICXML.read_bytes())
+    part_list = root.find("part-list")
+    part_list.remove(part_list.findall("score-part")[3])
+    with pytest.raises(ValueError, match="no <score-part>"):
+        split_for_violy(ET.tostring(root))
+
+
 def _with_tempo(blob, bpm, words=None, measure=0):
     """Add an "Allegro ♩ = bpm" style marking at the start of a measure of the top part."""
     root = _parse(blob)
@@ -181,4 +196,27 @@ def test_full_score_unchanged_is_returned_as_is():
 
 def test_full_score_unmarked_gets_default():
     xml, changed = set_score_tempo(SAMPLE_MUSICXML.read_bytes(), slow_by=20, unmarked_tempo=40)
+    assert changed and _sound_tempi(_parse(xml)) == ["40"]
+
+
+def test_tempo_only_in_a_part_shorter_than_the_top_one_is_labelled():
+    # MusicXML does not make every part carry every measure: the label must not
+    # need a measure the top part does not have.
+    root = _parse(SAMPLE_MUSICXML.read_bytes())
+    top = root.findall("part")[0]
+    for measure in top.findall("measure")[1:]:
+        top.remove(measure)
+    root.findall("part")[1].findall("measure")[10].insert(0, ET.fromstring('<sound tempo="120"/>'))
+    xml, changed = set_score_tempo(ET.tostring(root), slow_by=20)
+    out = _parse(xml)
+    assert changed and _sound_tempi(out) == ["100"]
+    assert _words(out) == ["Practice tempo: 100 BPM (original 120 BPM)"]
+
+
+def test_unmarked_score_whose_first_part_has_no_measures_gets_a_tempo():
+    root = _parse(SAMPLE_MUSICXML.read_bytes())
+    top = root.findall("part")[0]
+    for measure in top.findall("measure"):
+        top.remove(measure)
+    xml, changed = set_score_tempo(ET.tostring(root), unmarked_tempo=40)
     assert changed and _sound_tempi(_parse(xml)) == ["40"]

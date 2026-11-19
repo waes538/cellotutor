@@ -128,12 +128,14 @@ def _set_first_tempo(parts, tempo=None, slow_by=None, unmarked_tempo=None) -> bo
         target = tempo or unmarked_tempo
         if not target:
             return False
-        _insert_at_measure_start(parts[0].find("measure"), _words_direction(
+        measure = next((m for p in parts for m in p.findall("measure")), None)
+        if measure is None:
+            return False
+        _insert_at_measure_start(measure, _words_direction(
             "Practice tempo: %g BPM" % round(target), target))
         return True
-    first_index = min(i for i, _, _, _ in found)
-    original = float(next(s for i, _, _, s in sorted(found, key=lambda f: f[:2])
-                          if i == first_index).get("tempo"))
+    first_index, _, first_measure, first_sound = min(found, key=lambda f: f[:2])
+    original = float(first_sound.get("tempo"))
     if tempo:
         target = round(tempo)
     elif slow_by:
@@ -147,7 +149,7 @@ def _set_first_tempo(parts, tempo=None, slow_by=None, unmarked_tempo=None) -> bo
         if i == first_index and float(s.get("tempo")) == original:
             s.set("tempo", "%g" % target)
     label = _words_direction("Practice tempo: %g BPM (original %g BPM)" % (target, round(original)))
-    measure = parts[0].findall("measure")[first_index]
+    measure = _label_measure(parts, first_index, first_measure)
     tempo_direction = next((d for d in measure.findall("direction")
                             if d.find("sound") is not None and d.find("sound").get("tempo")), None)
     if tempo_direction is not None:
@@ -155,6 +157,20 @@ def _set_first_tempo(parts, tempo=None, slow_by=None, unmarked_tempo=None) -> bo
     else:
         _insert_at_measure_start(measure, label)
     return True
+
+
+def _label_measure(parts, index: int, tempo_measure: ET.Element) -> ET.Element:
+    """Where the practice-tempo label goes: the top part's measure at `index`.
+
+    A part can be shorter than another (MusicXML does not require every part to
+    carry every measure), and measure numbers can skip, so fall back to the top
+    part's measure with the same number and then to the measure holding the tempo."""
+    top = parts[0].findall("measure")
+    if index < len(top):
+        return top[index]
+    number = tempo_measure.get("number")
+    match = next((m for m in top if number is not None and m.get("number") == number), None)
+    return match if match is not None else tempo_measure
 
 
 def _apply_tempo(part: ET.Element, score_tempi=(), tempo=None, slow_by=None,
@@ -226,6 +242,8 @@ def split_for_violy(data: bytes, title: str = None, composer: str = None,
     composer = composer or existing_composer
 
     part_list = root.find("part-list")
+    if part_list is None:
+        raise ValueError("MusicXML has no <part-list>.")
     score_parts = {sp.get("id"): sp for sp in part_list.findall("score-part")}
     parts = root.findall("part")
     if not parts:
@@ -242,7 +260,9 @@ def split_for_violy(data: bytes, title: str = None, composer: str = None,
                    for n in part.iter("note")):
             raise ValueError("Part %s contains no notes or rests." % pid)
 
-        sp = score_parts[pid]
+        sp = score_parts.get(pid)
+        if sp is None:
+            raise ValueError("Part %s has no <score-part> entry in the part-list." % pid)
         part_name = _text(sp.find("part-name")) or "Part %d" % index
 
         # Build a fresh single-part score.
