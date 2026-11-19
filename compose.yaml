@@ -4,7 +4,7 @@
 #   docker compose down                             # stop it
 services:
   app:
-    image: ghcr.io/ezraulo/pdftomusicxml:latest
+    image: ghcr.io/waes538/cellotutor:latest
     build: .
     ports:
       - "8080:8080"
