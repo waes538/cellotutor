@@ -1,4 +1,4 @@
-# pdftomusicxml: convert sheet music between PDF, MuseScore, MusicXML and MIDI behind a
+# cellotutor: convert sheet music between PDF, MuseScore, MusicXML and MIDI behind a
 # small Flask app, with a practice-tempo option and a Violy Creator Studio export.
 #
 # Stage 1 builds Audiveris (AGPL-3.0) from its release tag: it reads PDFs and images.
@@ -22,7 +22,7 @@ COPY mscz/package.json mscz/package-lock.json ./
 RUN npm ci --omit=dev
 
 FROM eclipse-temurin:25-jre-noble AS final
-LABEL org.opencontainers.image.source="https://github.com/ezraulo/pdftomusicxml" \
+LABEL org.opencontainers.image.source="https://github.com/waes538/cellotutor" \
       org.opencontainers.image.description="Sheet music converter: PDF, MuseScore, MusicXML, MIDI; practice tempo; Violy export" \
       org.opencontainers.image.licenses="AGPL-3.0-only"
 RUN apt-get update && apt-get install -y --no-install-recommends \

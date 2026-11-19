@@ -3,7 +3,7 @@ name: Publish image
 # Builds the app image for Intel/AMD (amd64) and ARM (arm64, e.g. Apple-silicon Macs)
 # on native GitHub runners and publishes one multi-platform image to GitHub's container
 # registry, so it can be run without building:
-#   docker run --rm -p 8080:8080 ghcr.io/ezraulo/pdftomusicxml:latest
+#   docker run --rm -p 8080:8080 ghcr.io/waes538/cellotutor:latest
 
 on:
   push:

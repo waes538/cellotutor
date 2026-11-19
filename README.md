@@ -1,4 +1,4 @@
-# pdftomusicxml
+# cellotutor
 
 A small web app for practising from sheet music. Upload a **PDF or photo** of a score
 (read by [Audiveris](https://github.com/Audiveris/audiveris) 5.11.0), a **MuseScore** file
