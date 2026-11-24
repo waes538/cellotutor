@@ -18,6 +18,7 @@ permissions:
 
 env:
   IMAGE: ghcr.io/${{ github.repository }}
+  TARGET_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
 
 jobs:
   build:
@@ -33,6 +34,8 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TARGET_SHA }}
       - uses: docker/setup-buildx-action@v3
       - uses: docker/login-action@v3
         with:
@@ -45,7 +48,7 @@ jobs:
           platforms: linux/${{ matrix.arch }}
           push: true
           provenance: false
-          tags: ${{ env.IMAGE }}:${{ github.sha }}-${{ matrix.arch }}
+          tags: ${{ env.IMAGE }}:${{ env.TARGET_SHA }}-${{ matrix.arch }}
           cache-from: type=gha,scope=${{ matrix.arch }}
           cache-to: type=gha,mode=max,scope=${{ matrix.arch }}
 
@@ -62,6 +65,6 @@ jobs:
       - name: Combine both architectures under one tag
         run: |
           docker buildx imagetools create \
-            -t "$IMAGE:latest" -t "$IMAGE:${{ github.sha }}" \
-            "$IMAGE:${{ github.sha }}-amd64" "$IMAGE:${{ github.sha }}-arm64"
+            -t "$IMAGE:latest" -t "$IMAGE:${{ env.TARGET_SHA }}" \
+            "$IMAGE:${{ env.TARGET_SHA }}-amd64" "$IMAGE:${{ env.TARGET_SHA }}-arm64"
           docker buildx imagetools inspect "$IMAGE:latest"

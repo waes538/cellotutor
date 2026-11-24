@@ -196,7 +196,7 @@ Always check the notation before uploading: optical music recognition makes mist
 | -------- | ------- | ------- |
 | `PORT` | `8080` | |
 | `AUDIVERIS_CMD` | `/opt/audiveris/bin/Audiveris` | |
-| `OMR_TIMEOUT_S` | `840` | Seconds before an Audiveris run is killed |
+| `OMR_TIMEOUT_S` | `800` | Seconds before an Audiveris run is killed |
 | `MAX_UPLOAD_MB` | `40` | |
 | `WEBMSCORE_CMD` | `node /opt/mscz/convert.cjs` in the image | Unset means no `.mscz`, MIDI or PDF output and no `.mscz` input |
 
