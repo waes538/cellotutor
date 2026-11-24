@@ -9,6 +9,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      OMR_TIMEOUT_S: "840"
+      OMR_TIMEOUT_S: "800"
       MAX_UPLOAD_MB: "40"
+    mem_limit: 5g
     restart: unless-stopped

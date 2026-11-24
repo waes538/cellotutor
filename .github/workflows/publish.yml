@@ -6,8 +6,10 @@ name: Publish image
 #   docker run --rm -p 8080:8080 ghcr.io/waes538/cellotutor:latest
 
 on:
-  push:
-    branches: [main, master]   # master until the default branch is renamed to main
+  workflow_run:
+    workflows: ["Test"]
+    branches: [main]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -19,6 +21,7 @@ env:
 
 jobs:
   build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       matrix:
         include:

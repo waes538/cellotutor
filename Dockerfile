@@ -65,4 +65,4 @@ USER app
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -sf http://localhost:${PORT}/healthz || exit 1
 # One worker, one thread: OMR is memory-hungry, so a container converts one score at a time
 # (matches Cloud Run concurrency 1). The timeout sits just above the OMR time budget.
-CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 1 --timeout 900 app:app"]
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT} --workers 1 --threads 1 --timeout 870 app:app"]

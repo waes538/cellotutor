@@ -63,7 +63,7 @@ def audiveris_command():
 
 def omr_timeout_s() -> float:
     # Below gunicorn's and Cloud Run's 900 s, so a slow score gets a clear error.
-    return float(os.environ.get("OMR_TIMEOUT_S", "840"))
+    return float(os.environ.get("OMR_TIMEOUT_S", "800"))
 
 
 def _stem(filename: str) -> str:
